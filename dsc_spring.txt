@@ -1,0 +1,125 @@
+mkdir home/dsc/ExemplosDSC2023
+mv /home/dsc/downloads/ExJPA.jar
+
+home/dsc/exemplodsc$
+	->docker-compose
+
+'	docker-compose up
+	docker ps
+	mysql -h 127.0.0.1 -u root -p
+	insere senha
+
+	mysql> create user 'nomeusuario'@%' identifed by 'senha';
+	create database bd_spring;
+	grant all on bd_spring.* to 'nomeusuario'			->>permitir todos os privilegios para o usuário
+	cd ../ExemplosDSC2023
+	cd ExJPA
+	tree -a
+	vim src/main/resources/application.properties
+	
+	arquivo:
+	=>
+		spring.jpa.hibernate.ddl-auto=create
+		spring.datasource.url=jdbc:mysql://localhost:3306/bd_spring
+		spring.datasource.username=nomeusuario
+		spring.datasource.password=senha
+	<=
+	fim do arquivo
+
+	
+	mkdir src/main/java/com/eaxmple/ExJPA/dominio
+	vim src/main/java/com/example/ExJPA/dominio/Usuario.java
+	=>
+		package com.example.ExJPA.dominio;
+		import javax.persistence.Entity;
+		import javax.persistence.Id;
+
+		@Entity
+		public class Usuario{
+			@Id
+			@GeneratedValue(strategy=GenerationType.AUTO)
+			private Integer id;
+			private String nome;
+			private String email;
+
+			public Integer getId() {return id;}
+			public String getNome() {return nome;}
+			public String getEmail() {return email;}
+
+			public void setId(Integer id){this.id = id;}
+			public void setNome(String nome){this.nome = nome;}
+			public void setEmail(String email){this.email = email;}
+		
+		}
+		
+	<=
+
+
+06/07/2023
+ExJPA:
+	mkdir src/main/java/com/example/ExJPA/repositorio
+	vim src/main/java/com/example/ExJPA/repositorio/RepositorioUsuario.java
+	
+arquivo:
+	=>
+	package com.example.ExJPA.repositorio;
+	import org.springframework.data.repository.CrudRepository;
+
+	public interface RepositorioUsuario extends CrudRepository<Usuario, Integer>{
+
+	}
+
+	<=
+	
+	esc, :x
+
+	mkdir src/main/java/com/example/ExJPA/controladores
+	cd src/main/java/com/example/ExJPA/controladores/MeuControlador.java
+
+arquivo:
+	=>
+	package com.example.ExJPA.repositorio;
+	import org.springframework.stereotype.Controller;	
+	import org.springframework.web.bind.annotation.*;
+	import org.springframework.beans.factory.annotation.Autowired;
+	import com.example.ExJPA.dominio.Usuario;
+	import com.example.ExJPA.repositorio.RepositorioUsuario;
+
+	@Controller
+	@RequestMapping(path="/")
+	public class MeuControlador{
+		
+		@Autowired
+		private RepositorioUsuario ru;
+		
+		@PostMapping(path="/usuario")
+		public @ResponseBody String adicionarUsuario(@RequestParam String nome, @RequestParam String email){		
+			Usuario u = new Usuario();
+			u.setNome(nome);
+			u.setemail(email);
+			ru.save(u);
+			
+			return "Salvo";
+			
+		}
+
+		@GetMapping(path="/usuario")
+		public @ResponseBody Iterable<Usuario> obterUsuarios(){
+			ru.findAll();
+		
+		}
+	}
+
+	<=
+
+	Executar:	
+		$ gradle tasks	
+		java --version
+		gradlebootRun
+
+	Teste:
+		$ curl "localhost:8080/usuario"
+		$ curl -x "localhost:8080/usuario/listar"
+		$ curl "localhost:8080/usuario/adicionar?nome=Primeiro&email=email@mail.com"
+		
+		
